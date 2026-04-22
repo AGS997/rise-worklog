@@ -55,9 +55,9 @@ if (userCount.count === 0) {
   }
 }
 
-// Middleware
-app.use(express.json());
+// Middleware - static files must come first
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.json());
 app.use(session({
   secret: process.env.SESSION_SECRET || 'rise-worklog-secret-2024',
   resave: false,
