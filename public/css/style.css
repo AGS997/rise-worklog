@@ -324,7 +324,7 @@ tbody tr:hover { background: var(--bg); }
   display: inline-flex; align-items: center; padding: 0.2rem 0.65rem;
   border-radius: 99px; font-size: 0.72rem; font-weight: 600;
 }
-.badge-boss     { background: #fef3c7; color: #b45309; }
+.badge-boss     { background: #fef3c7; color: #b45309; } /* Director */
 .badge-supervisor { background: #f3e8ff; color: #7c3aed; }
 .badge-member   { background: var(--blue-light); color: var(--blue-dark); }
 .badge-hours    { background: #ecfdf5; color: #059669; }

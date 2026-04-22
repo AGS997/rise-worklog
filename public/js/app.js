@@ -84,7 +84,8 @@ async function initApp() {
   document.getElementById('app').style.display = 'block';
 
   document.getElementById('nav-name').textContent = currentUser.full_name;
-  document.getElementById('nav-role').textContent = currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1);
+  const roleLabel = { boss: 'Director', supervisor: 'Supervisor', member: 'Lab Officer' };
+  document.getElementById('nav-role').textContent = roleLabel[currentUser.role] || currentUser.role;
   document.getElementById('nav-avatar').textContent = initials(currentUser.full_name);
 
   buildNav();
@@ -218,7 +219,7 @@ document.getElementById('mine-filter-clear').addEventListener('click', () => {
   loadMyTasks();
 });
 
-// ── All Tasks (Boss/Supervisor) ───────────────────────────────────────────────
+// ── All Tasks (Director/Supervisor) ───────────────────────────────────────────────
 
 async function loadAllTasks() {
   const userId = document.getElementById('all-filter-user').value;
@@ -351,7 +352,7 @@ document.getElementById('dash-clear-btn').addEventListener('click', () => {
   loadDashboard();
 });
 
-// ── User Management (Boss) ────────────────────────────────────────────────────
+// ── User Management (Director) ────────────────────────────────────────────────────
 
 async function loadUsers() {
   const users = await api('GET', '/api/users');
@@ -360,7 +361,7 @@ async function loadUsers() {
     <tr>
       <td><strong>${escapeHtml(u.full_name)}</strong></td>
       <td><code style="font-size:0.85rem;">${escapeHtml(u.username)}</code></td>
-      <td><span class="badge badge-${u.role}">${u.role}</span></td>
+      <td><span class="badge badge-${u.role}">${{boss:'Director',supervisor:'Supervisor',member:'Lab Officer'}[u.role] || u.role}</span></td>
       <td>
         <button class="btn btn-secondary btn-sm" onclick="openChangePw(${u.id}, '${escapeHtml(u.username)}')">
           Change Password
@@ -520,7 +521,7 @@ async function loadComments(taskId) {
   }
   list.innerHTML = comments.map(c => `
     <div class="comment-item">
-      <div class="comment-meta">${escapeHtml(c.full_name)} · <span style="text-transform:capitalize;">${c.role}</span> · ${new Date(c.created_at).toLocaleDateString()}</div>
+      <div class="comment-meta">${escapeHtml(c.full_name)} · <span>${{boss:'Director',supervisor:'Supervisor',member:'Lab Officer'}[c.role] || c.role}</span> · ${new Date(c.created_at).toLocaleDateString()}</div>
       <div class="comment-text">${escapeHtml(c.comment)}</div>
       ${currentUser.role === 'boss' ? `<button class="btn btn-ghost btn-icon" style="position:absolute;top:0.4rem;right:0.4rem;" onclick="deleteComment(${c.id})">${iconTrash()}</button>` : ''}
     </div>

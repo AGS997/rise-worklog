@@ -48,8 +48,8 @@ const userCount = db.prepare('SELECT COUNT(*) as count FROM users').get();
 if (userCount.count === 0) {
   const hash = (pw) => bcrypt.hashSync(pw, 10);
   const insert = db.prepare('INSERT INTO users (username, password, full_name, role) VALUES (?, ?, ?, ?)');
-  insert.run('boss', hash('boss123'), 'Dr. Ahmed Al-Boss', 'boss');
-  insert.run('supervisor1', hash('super123'), 'Sara Al-Supervisor', 'supervisor');
+  insert.run('boss', hash('boss123'), 'Director', 'boss');
+  insert.run('supervisor1', hash('super123'), 'Supervisor', 'supervisor');
   for (let i = 1; i <= 20; i++) {
     insert.run(`employee${i}`, hash('pass123'), `Lab Officer ${i}`, 'member');
   }
