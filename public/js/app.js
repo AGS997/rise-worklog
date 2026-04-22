@@ -278,6 +278,66 @@ document.getElementById('all-filter-clear').addEventListener('click', () => {
   loadAllTasks();
 });
 
+// ── Export to Excel ──────────────────────────────────────────────────────────
+
+document.getElementById('export-excel-btn').addEventListener('click', exportToExcel);
+
+async function exportToExcel() {
+  const userId = document.getElementById('all-filter-user').value;
+  const from   = document.getElementById('all-filter-from').value;
+  const to     = document.getElementById('all-filter-to').value;
+  const search = document.getElementById('all-filter-search').value.trim();
+
+  const params = new URLSearchParams();
+  if (userId) params.set('user_id', userId);
+  if (from)   params.set('from', from);
+  if (to)     params.set('to', to);
+  if (search) params.set('search', search);
+
+  const tasks = await api('GET', `/api/tasks?${params}`);
+
+  if (!tasks.length) { toast('No tasks to export.', 'error'); return; }
+
+  // Build CSV content
+  const headers = ['Date', 'Employee', 'Task', 'Requestor', 'Description', 'Magnitude', 'Duration (hrs)'];
+  const rows = tasks.map(t => [
+    t.date,
+    t.full_name,
+    t.task_title,
+    t.requestor,
+    t.description,
+    t.magnitude || '',
+    t.duration
+  ]);
+
+  const csvContent = [headers, ...rows]
+    .map(row => row.map(cell => {
+      const val = String(cell ?? '').replace(/"/g, '""');
+      return `"${val}"`;
+    }).join(','))
+    .join('\n');
+
+  // Build filename based on active filters
+  const employeeName = userId
+    ? (allUsers.find(u => u.id == userId)?.full_name || 'Employee').replace(/\s+/g, '_')
+    : 'All_Employees';
+  const dateRange = (from || to)
+    ? `_${from || 'start'}_to_${to || 'today'}`
+    : '_All_Time';
+  const filename = `RISE_Tasks_${employeeName}${dateRange}.csv`;
+
+  // Trigger download
+  const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+
+  toast(`Exported ${tasks.length} task${tasks.length !== 1 ? 's' : ''} to Excel.`);
+}
+
 function populateUserFilter() {
   const sel = document.getElementById('all-filter-user');
   sel.innerHTML = '<option value="">All Employees</option>' +
